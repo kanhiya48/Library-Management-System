@@ -37,6 +37,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Set<Role> roles = new HashSet<>();
+    @ElementCollection
+    @CollectionTable(name = "user_book_copies", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "book_copy_id")
+    private Set<Long> bookCopyId = new HashSet<>();
 
     @PrePersist
     public void generatePublicId() {
@@ -45,15 +49,11 @@ public class User implements UserDetails {
         }
     }
 
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .toList();
     }
-
-
 
     @Override
     public String getPassword() {

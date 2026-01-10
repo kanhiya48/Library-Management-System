@@ -14,16 +14,17 @@ import org.springframework.stereotype.Repository;
 public interface BookRepo extends JpaRepository<Book, Long> {
 
     // @Query(value = """
-    //         SELECT *
-    //         FROM book b
-    //         WHERE
-    //               lower(b.book_title) % lower(:q)
-    //            OR lower(b.author)     % lower(:q)
-    //         """, nativeQuery = true)
+    // SELECT *
+    // FROM book b
+    // WHERE
+    // lower(b.book_title) % lower(:q)
+    // OR lower(b.author) % lower(:q)
+    // """, nativeQuery = true)
     // Optional<Book> findByAut(String email);
     // @Query(
 
     // )
     // List<Book> fuzzySearchBooks(String query);
+    Optional<Book> findByPublicId(String publicId);
 }
 

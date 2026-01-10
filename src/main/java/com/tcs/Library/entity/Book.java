@@ -1,7 +1,10 @@
 package com.tcs.Library.entity;
 
 
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +36,7 @@ public class Book {
     private Long id;
 
     @Column(name = "public_id", nullable = false, unique = true, updatable = false)
-    private UUID publicId;
+    private String publicId;
 
     @Column(name = "book_title")
     private String book_title;
@@ -45,10 +48,6 @@ public class Book {
     @Column(name = "cover_url")
     private String coverUrl;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private BookStatus status = BookStatus.FIRST;
-
     @Column(name = "quantity")
     private int quantity;
 
@@ -57,13 +56,14 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<Author> author = new HashSet<>();
     @OneToMany(mappedBy = "book")
-    private List<IssuedBooks> books = new ArrayList<>();
+    private List<BookCopy> books = new ArrayList<>();
 
 
     @PrePersist
     public void generatePublicId() {
         if (publicId == null) {
-            publicId = UUID.randomUUID();
+            byte[] bytes = ByteBuffer.allocate(Long.BYTES).putLong(id).array();
+            publicId = Base64.getEncoder().encodeToString(bytes);
         }
     }
 }

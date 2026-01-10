@@ -24,58 +24,65 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.tcs.Library.enums.Role;
 import com.tcs.Library.filter.JwtAuthenticationFilter;
 
+
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-
     @Autowired
     private CustomUserDetailService customUserDetailService;
-
     @Autowired
     private JwtAuthenticationFilter jwtFilter;
+    // @Value("${server.servlet.context-path}")
+    // private static String basePath;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    private static String p(String path) {
+        return path;
+    }
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .headers(h -> h.frameOptions(f -> f.disable()))
+        http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .userDetailsService(customUserDetailService)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/h2-console/**", "/whoami/**")
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, p("/**"))
                         .permitAll()
-                        .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
-                        .anyRequest().authenticated());
+                        .requestMatchers(p("/auth/**"), p("/h2-console/**"), p("/whoami/**"))
+                        .permitAll().requestMatchers(p("/admin/**")).hasRole(Role.ADMIN.name())
+                        .requestMatchers(p("/user/search/**"), p("/author/register/**"))
+                        .authenticated().anyRequest().authenticated());
+
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(
-                List.of("http://localhost:5500", "http://127.0.0.1:5500"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
+        // config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOrigins(
+                List.of("http://127.0.0.1:5500", "http://localhost:5500"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration(p("/**"), config);
         return source;
-    }
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 }
