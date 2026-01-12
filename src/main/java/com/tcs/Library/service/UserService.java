@@ -8,22 +8,20 @@ import com.tcs.Library.repository.*;
 
 import java.time.Clock;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service; 
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import com.tcs.Library.dto.wrapper.*;
 import com.tcs.Library.entity.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-   
 
-    @Autowired
-    private UserRepo userDS;
-    @Autowired
-    private UserValidations res;
+    private final UserRepo userDS;
+    private final UserValidations res;
 
     public void validateUser(UserRegRequest user) {
-    
+
         ValidationResult result = res.validateRegistration(user, Clock.systemDefaultZone());
 
         if (result.isValid()) {
@@ -31,11 +29,10 @@ public class UserService {
             System.out.print(newUser);
             userDS.save(newUser);
         } else {
-            for(int i=0;i<result.getErrors().size();i++){
+            for (int i = 0; i < result.getErrors().size(); i++) {
                 System.out.println(result.getErrors().get(i));
             }
-            //System.out.println( result.getErrors());
+            // System.out.println( result.getErrors());
         }
     }
 }
-

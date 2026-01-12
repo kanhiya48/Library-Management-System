@@ -2,9 +2,6 @@
 package com.tcs.Library.config;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.autoconfigure.ServerProperties.Reactive.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,16 +21,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.tcs.Library.enums.Role;
 import com.tcs.Library.filter.JwtAuthenticationFilter;
 
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-    @Autowired
-    private CustomUserDetailService customUserDetailService;
-    @Autowired
-    private JwtAuthenticationFilter jwtFilter;
-    // @Value("${server.servlet.context-path}")
-    // private static String basePath;
+    private final CustomUserDetailService customUserDetailService;
+    private final JwtAuthenticationFilter jwtFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -43,7 +38,6 @@ public class SecurityConfig {
     private static String p(String path) {
         return path;
     }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,11 +53,9 @@ public class SecurityConfig {
                         .requestMatchers(p("/user/search/**"), p("/author/register/**"))
                         .authenticated().anyRequest().authenticated());
 
-
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)

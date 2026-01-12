@@ -4,7 +4,6 @@ import com.tcs.Library.config.CustomUserDetailService;
 import org.springframework.security.core.Authentication;
 import java.time.Clock;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -30,22 +29,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    @Autowired
     private final AuthenticationManager authManager;
-    @Autowired
     private final AuthUtils authUtils;
-    @Autowired
-    private UserRepo userDS;
-    @Autowired
-    private UserValidations res;
+    private final UserRepo userDS;
+    private final UserValidations res;
     private final PasswordEncoder passwordEncoder;
-    @Autowired
-    private CustomUserDetailService detailService;
-
+    private final CustomUserDetailService detailService;
 
     public LoginResponse login(LoginRequest req) {
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword());
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(req.getEmail(),
+                req.getPassword());
 
         authManager.authenticate(authToken);
 
@@ -56,7 +49,6 @@ public class AuthService {
 
         return new LoginResponse(token);
     }
-
 
     public SignUpResponse signup(UserRegRequest req) {
         ValidationResult result = res.validateRegistration(req, Clock.systemDefaultZone());

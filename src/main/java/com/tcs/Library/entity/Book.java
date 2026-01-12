@@ -1,10 +1,7 @@
 package com.tcs.Library.entity;
 
-
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Base64;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -52,18 +50,16 @@ public class Book {
     private int quantity;
 
     @ManyToMany
-    @JoinTable(name = "author_book", joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id"))
+    @JoinTable(name = "author_book", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<Author> author = new HashSet<>();
-    @OneToMany(mappedBy = "book")
-    private List<BookCopy> booksCopy = new ArrayList<>();
 
+    @OneToMany(mappedBy = "book", cascade = jakarta.persistence.CascadeType.ALL)
+    private List<BookCopy> booksCopy = new ArrayList<>();
 
     @PrePersist
     public void generatePublicId() {
         if (publicId == null) {
-            byte[] bytes = ByteBuffer.allocate(Long.BYTES).putLong(id).array();
-            publicId = Base64.getEncoder().encodeToString(bytes);
+            publicId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 10);
         }
     }
 }

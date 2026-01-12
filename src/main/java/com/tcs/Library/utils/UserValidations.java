@@ -14,7 +14,6 @@ import javax.crypto.SecretKeyFactory;
 
 import javax.crypto.spec.PBEKeySpec;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.*;
@@ -24,21 +23,20 @@ import java.security.SecureRandom;
 import com.tcs.Library.service.*;
 
 @Component
+@RequiredArgsConstructor
 public class UserValidations {
 
     // -----------------------------
     // Error messages (as provided)
     // -----------------------------
-    public static final String ERR_NAME =
-            "Name must be at least 3 characters long and contain only letters.";
+    public static final String ERR_NAME = "Name must be at least 3 characters long and contain only letters.";
     public static final String ERR_EMAIL = "Enter a valid email address.";
     public static final String ERR_EMAIL_DUP = "Email already registered";
     public static final String ERR_MOBILE = "Enter a valid mobile number.";
     public static final String ERR_MOBILE_DUP = "Mobile number already registered.";
     public static final String ERR_ADDRESS = "Address must be at least 10 characters long.";
     public static final String ERR_DOB_AGE = "member must be 18 years old to create account.";
-    public static final String ERR_PASSWORD =
-            "Password must be at least 8 characters and include a mix of uppercase, lowercase, number, and special character.";
+    public static final String ERR_PASSWORD = "Password must be at least 8 characters and include a mix of uppercase, lowercase, number, and special character.";
     public static final String ERR_CONFIRM_PASSWORD = "Passwords do not match.";
     public static final String ERR_SECRET_Q = "Secret question is required.";
     public static final String ERR_SECRET_A = "Secret answer is required.";
@@ -48,8 +46,7 @@ public class UserValidations {
     // Regex Patterns
     // -----------------------------
     private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z ]+$");
-    private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern DIGITS_ONLY = Pattern.compile("^\\d+$");
     private static final Pattern COUNTRY_CODE_PATTERN = Pattern.compile("^\\+[1-9]\\d{0,3}$"); // e.g.
                                                                                                // +91,
@@ -62,14 +59,13 @@ public class UserValidations {
     // - at least 1 lowercase
     // - at least 1 digit
     // - at least 1 special
-    private static final Pattern PASSWORD_PATTERN =
-            Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$");
+    private static final Pattern PASSWORD_PATTERN = Pattern
+            .compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$");
 
     // -----------------------------
     // Public Validation Methods
     // -----------------------------
-    @Autowired
-    private UniqueCheckServiceImpl uniqueCheckService;
+    private final UniqueCheckService uniqueCheckService;
 
     public ValidationResult validateRegistration(UserRegRequest req, Clock clock) {
         ValidationResult result = new ValidationResult();
@@ -205,7 +201,8 @@ public class UserValidations {
     }
 
     // 5) DOB: required, must be at least 14 years old.
-    // "No spaces" is naturally satisfied by LocalDate; if you store as string, trim it before
+    // "No spaces" is naturally satisfied by LocalDate; if you store as string, trim
+    // it before
     // parsing.
     public static boolean checkDob(LocalDate dob, Clock clock) {
         if (dob == null)
@@ -222,7 +219,8 @@ public class UserValidations {
     }
 
     /**
-     * Helper for UI: Max selectable DOB so user is at least 14. If today = 2025-01-01 => max DOB =
+     * Helper for UI: Max selectable DOB so user is at least 14. If today =
+     * 2025-01-01 => max DOB =
      * 2011-01-01 (as you requested).
      */
     public static LocalDate getMaxSelectableDobFor14Years(Clock clock) {
@@ -252,7 +250,8 @@ public class UserValidations {
     private static final int HASH_BYTES = 32; // 256-bit
 
     /**
-     * Hash password using PBKDF2WithHmacSHA256. Returns: iterations:saltBase64:hashBase64
+     * Hash password using PBKDF2WithHmacSHA256. Returns:
+     * iterations:saltBase64:hashBase64
      */
     public static String hashPassword(String rawPassword) {
         if (isBlank(rawPassword)) {
@@ -280,8 +279,7 @@ public class UserValidations {
         byte[] salt = Base64.getDecoder().decode(parts[1]);
         byte[] expectedHash = Base64.getDecoder().decode(parts[2]);
 
-        byte[] computedHash =
-                pbkdf2(rawPassword.toCharArray(), salt, iterations, expectedHash.length);
+        byte[] computedHash = pbkdf2(rawPassword.toCharArray(), salt, iterations, expectedHash.length);
 
         return constantTimeEquals(expectedHash, computedHash);
     }
@@ -346,5 +344,3 @@ public class UserValidations {
         private final String message;
     }
 }
-
-

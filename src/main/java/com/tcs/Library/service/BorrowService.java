@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,26 +19,24 @@ import com.tcs.Library.error.UserDefaulterException;
 import com.tcs.Library.repository.BookCopyRepo;
 import com.tcs.Library.repository.BookRepo;
 import com.tcs.Library.repository.UserRepo;
-import com.tcs.Library.utils.BookUtils;
+
 import jakarta.transaction.Transactional;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class BorrowService {
 
-    @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    private BookRepo bookRepo;
-
-    @Autowired
-    private BookCopyRepo bookCopyRepo;
+    private final UserRepo userRepo;
+    private final BookRepo bookRepo;
+    private final BookCopyRepo bookCopyRepo;
 
     @Transactional
-    public BookCopy issueBook(String bookPubId, Long usrId, String usrPubId)
+    public com.tcs.Library.dto.IssueBookResponseDTO issueBook(String bookPubId, Long usrId, String usrPubId)
             throws SameBookException {
 
-        Book book = bookRepo.findById(BookUtils.getBookIdfromPublicId(bookPubId))
+        Book book = bookRepo.findByPublicId(bookPubId)
                 .orElseThrow(() -> new BookNotFoundException(bookPubId));
         User user = userRepo.findById(usrId)
                 .orElseThrow(() -> new NoUserFoundException(usrPubId));
@@ -53,7 +50,8 @@ public class BorrowService {
                 userRepo.save(user);
                 throw new UserDefaulterException(user.getPublicId().toString());
             }
-            if (BookUtils.getParentfromCopyId(bc.getCopypubId()).equals(bookPubId)) {
+            String currentBookPubId = bc.getCopypubId().split("_")[0];
+            if (currentBookPubId.equals(bookPubId)) {
                 throw new SameBookException(bookPubId);
             }
         }
@@ -61,12 +59,20 @@ public class BorrowService {
                 .findFirstByBookAndStatusIn(book, List.of(BookStatus.RETURNED, BookStatus.FIRST))
                 .orElseThrow(() -> new RuntimeException("No available copies for book: " + bookPubId));
 
-        availableCopy.setStatus(com.tcs.Library.enums.BookStatus.BORROWED);
+        availableCopy.setStatus(BookStatus.BORROWED);
         availableCopy.setUser(user);
         availableCopy.setIssueTime(LocalDateTime.now());
         availableCopy.setReturnTime(LocalDateTime.now().plusDays(14));
         user.getBookCopy().add(availableCopy);
 
-        return availableCopy;
+        return com.tcs.Library.dto.IssueBookResponseDTO.builder()
+                .bookTitle(book.getBook_title())
+                .bookCopyPublicId(availableCopy.getCopypubId())
+                .userPublicId(user.getPublicId().toString())
+                .userName(user.getCustomerName())
+                .issueTime(availableCopy.getIssueTime())
+                .returnTime(availableCopy.getReturnTime())
+                .status(availableCopy.getStatus().name())
+                .build();
     }
 }
