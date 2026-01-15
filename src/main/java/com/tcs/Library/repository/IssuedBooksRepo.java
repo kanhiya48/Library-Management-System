@@ -32,4 +32,7 @@ public interface IssuedBooksRepo extends JpaRepository<IssuedBooks, Long> {
 
     // Get all active borrows
     List<IssuedBooks> findByStatus(String status);
+
+    // Count active borrows for a user
+    int countByUserIdAndStatus(Long userId, String status);
 }

@@ -59,6 +59,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(MaxBooksExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxBooksExceeded(MaxBooksExceededException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ApiResponse<Void>> handleOptimisticLocking(ObjectOptimisticLockingFailureException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)

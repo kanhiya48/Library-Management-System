@@ -26,6 +26,7 @@ public class BorrowService {
     private final FineRepo fineRepo;
 
     private static final int LOAN_PERIOD_DAYS = 14;
+    private static final int MAX_BOOKS_PER_USER = 5;
     private static final BigDecimal FINE_PER_DAY = new BigDecimal("10.00");
     private static final BigDecimal DEFAULTER_FINE_THRESHOLD = new BigDecimal("100.00");
     private static final int DEFAULTER_OVERDUE_DAYS = 30;
@@ -52,7 +53,14 @@ public class BorrowService {
         Book book = bookRepo.findByPublicId(request.getBookPublicId())
                 .orElseThrow(() -> new BookNotFoundException("Book not found: " + request.getBookPublicId()));
 
-        // 5. Check unique book constraint - user cannot borrow same book type twice
+        // 5. Check max books per user limit
+        int currentBorrows = issuedBooksRepo.countByUserIdAndStatus(user.getId(), "BORROWED");
+        if (currentBorrows >= MAX_BOOKS_PER_USER) {
+            throw new MaxBooksExceededException(
+                    "Maximum limit of " + MAX_BOOKS_PER_USER + " books reached. Return a book to borrow more.");
+        }
+
+        // 6. Check unique book constraint - user cannot borrow same book type twice
         boolean alreadyBorrowed = issuedBooksRepo.existsActiveBorrowByUserAndBook(user.getId(), book.getId());
         if (alreadyBorrowed) {
             throw new DuplicateBookBorrowException(

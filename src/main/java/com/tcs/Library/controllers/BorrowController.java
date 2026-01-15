@@ -17,14 +17,14 @@ public class BorrowController {
     private final BorrowService borrowService;
 
     @PostMapping("/issue")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     public ResponseEntity<ApiResponse<IssuedBooks>> issueBook(@RequestBody IssueBookRequest request) {
         IssuedBooks issued = borrowService.issueBook(request);
         return ResponseEntity.ok(ApiResponse.success("Book issued successfully", issued));
     }
 
     @PostMapping("/return/{bookCopyId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     public ResponseEntity<ApiResponse<IssuedBooks>> returnBook(@PathVariable Long bookCopyId) {
         IssuedBooks returned = borrowService.returnBook(bookCopyId);
         return ResponseEntity.ok(ApiResponse.success("Book returned successfully", returned));
