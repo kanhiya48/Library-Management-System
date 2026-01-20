@@ -38,7 +38,7 @@
                     "name": "Login as Staff",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/auth/login",
+                        "url": "{{baseUrl}}/auth/login",
                         "header": [
                             {
                                 "key": "Content-Type",
@@ -50,6 +50,82 @@
                             "raw": "{\n  \"email\": \"staff1@library.com\",\n  \"password\": \"staff@123\"\n}"
                         }
                     }
+                },
+                {
+                    "name": "Signup New User",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/auth/signup",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"customerName\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"countryCode\": \"+91\",\n  \"mobileNumber\": \"9876543210\",\n  \"address\": \"123 Test Street, City\",\n  \"dateOfBirth\": \"2000-01-15\",\n  \"password\": \"Test@123\",\n  \"confirmPassword\": \"Test@123\",\n  \"secretQuestion\": \"pet\",\n  \"secretAnswer\": \"fluffy\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Forgot Password",
+            "item": [
+                {
+                    "name": "Step 1 - Get Secret Question",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/auth/forgot-password",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"testuser@example.com\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Step 2 - Verify Secret Answer",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/auth/verify-answer",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"secretAnswer\": \"fluffy\"\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Step 3 - Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/auth/reset-password",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"secretAnswer\": \"fluffy\",\n  \"newPassword\": \"NewPass@123\",\n  \"confirmNewPassword\": \"NewPass@123\"\n}"
+                        }
+                    },
+                    "response": []
                 }
             ]
         },
@@ -60,7 +136,7 @@
                     "name": "Add New Book",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/admin/books",
+                        "url": "{{baseUrl}}/admin/books",
                         "header": [
                             {
                                 "key": "Content-Type",
@@ -81,7 +157,7 @@
                     "name": "Get All Books",
                     "request": {
                         "method": "GET",
-                        "url": "{{baseUrl}}/api/admin/books",
+                        "url": "{{baseUrl}}/admin/books",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -190,7 +266,7 @@
                     "name": "Get Pending Donations (Admin)",
                     "request": {
                         "method": "GET",
-                        "url": "{{baseUrl}}/api/admin/donations",
+                        "url": "{{baseUrl}}/admin/donations",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -203,7 +279,7 @@
                     "name": "Approve Donation (Admin)",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/admin/donations/1/approve",
+                        "url": "{{baseUrl}}/admin/donations/1/approve",
                         "header": [
                             {
                                 "key": "Content-Type",

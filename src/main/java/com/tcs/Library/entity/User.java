@@ -39,6 +39,7 @@ public class User implements UserDetails {
     private LocalDate dateOfBirth;
     private String passwordHash;
     private String secretQuestion;
+    private String secretAnswerHash; // Hashed for security
 
     @Column(nullable = false)
     private boolean isDefaulter = false;
