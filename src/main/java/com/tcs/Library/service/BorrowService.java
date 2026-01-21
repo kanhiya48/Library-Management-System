@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +90,9 @@ public class BorrowService {
         return issuedBooksRepo.save(issuedBook);
     }
 
+    /**
+     * Return a book by copy ID.
+     */
     @Transactional
     public IssuedBooks returnBook(Long bookCopyId) {
         // 1. Get the book copy
@@ -96,17 +100,79 @@ public class BorrowService {
                 .orElseThrow(() -> new BookNotFoundException("Book copy not found: " + bookCopyId));
 
         if (copy.getStatus() != BookStatus.BORROWED) {
-            throw new RuntimeException("Book copy is not currently borrowed");
+            throw new InvalidBookOperationException("Book copy is not currently borrowed");
         }
 
         // 2. Find the active issue record
         IssuedBooks record = issuedBooksRepo.findByBookCopyIdAndStatus(bookCopyId, "BORROWED")
-                .orElseThrow(() -> new RuntimeException("No active borrow record found"));
+                .orElseThrow(() -> new InvalidBookOperationException("No active borrow record found for this copy"));
 
+        return processReturn(record, copy);
+    }
+
+    /**
+     * Return book by issue record ID.
+     */
+    @Transactional
+    public IssuedBooks returnBookByRecordId(Long recordId) {
+        IssuedBooks record = issuedBooksRepo.findById(recordId)
+                .orElseThrow(() -> new InvalidBookOperationException("Borrow record not found: " + recordId));
+
+        if (!"BORROWED".equals(record.getStatus())) {
+            throw new InvalidBookOperationException("This book has already been returned");
+        }
+
+        BookCopy copy = record.getBookCopy();
+        return processReturn(record, copy);
+    }
+
+    /**
+     * Return book by user - user returns their own book using book public ID.
+     */
+    @Transactional
+    public IssuedBooks returnBookByUser(User user, String bookPublicId) {
+        // Find the book
+        Book book = bookRepo.findByPublicId(bookPublicId)
+                .orElseThrow(() -> new BookNotFoundException("Book not found: " + bookPublicId));
+
+        // Find the active borrow record for this user and book
+        IssuedBooks record = issuedBooksRepo.findActiveByUserAndBook(user.getId(), book.getId())
+                .orElseThrow(() -> new InvalidBookOperationException(
+                        "You don't have an active borrow for: " + book.getBookTitle()));
+
+        BookCopy copy = record.getBookCopy();
+        return processReturn(record, copy);
+    }
+
+    /**
+     * Get all currently borrowed books for a user.
+     */
+    public List<IssuedBooks> getUserBorrowedBooks(User user) {
+        return issuedBooksRepo.findByUserIdAndStatus(user.getId(), "BORROWED");
+    }
+
+    /**
+     * Get borrow history for a user.
+     */
+    public List<IssuedBooks> getUserBorrowHistory(User user) {
+        return issuedBooksRepo.findByUserId(user.getId());
+    }
+
+    /**
+     * Get all overdue books for a user.
+     */
+    public List<IssuedBooks> getUserOverdueBooks(User user) {
+        return issuedBooksRepo.findOverdueBooksForUser(user.getId(), LocalDate.now());
+    }
+
+    /**
+     * Common return processing logic.
+     */
+    private IssuedBooks processReturn(IssuedBooks record, BookCopy copy) {
         User user = record.getUser();
         LocalDate today = LocalDate.now();
 
-        // 3. Calculate fine if overdue
+        // Calculate fine if overdue
         if (today.isAfter(record.getDueDate())) {
             long daysOverdue = ChronoUnit.DAYS.between(record.getDueDate(), today);
             BigDecimal fineAmount = FINE_PER_DAY.multiply(BigDecimal.valueOf(daysOverdue));
@@ -130,16 +196,16 @@ public class BorrowService {
             log.info("Fine of ₹{} applied for {} days overdue", fineAmount, daysOverdue);
         }
 
-        // 4. Update copy status
+        // Update copy status
         copy.setStatus(BookStatus.AVAILABLE);
         copy.setCurrentUser(null);
         bookCopyRepo.save(copy);
 
-        // 5. Update issue record
+        // Update issue record
         record.setReturnDate(today);
         record.setStatus("RETURNED");
 
-        log.info("Book returned: copy {} by user {}", bookCopyId, user.getEmail());
+        log.info("Book returned: {} by user {}", copy.getBook().getBookTitle(), user.getEmail());
         return issuedBooksRepo.save(record);
     }
 

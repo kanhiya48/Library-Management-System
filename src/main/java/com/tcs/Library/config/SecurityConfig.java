@@ -50,12 +50,23 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .userDetailsService(customUserDetailService)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, p("/**"))
-                        .permitAll()
-                        .requestMatchers(p("/auth/**"), p("/h2-console/**"), p("/whoami/**"))
-                        .permitAll().requestMatchers(p("/admin/**")).hasRole(Role.ADMIN.name())
-                        .requestMatchers(p("/user/search/**"), p("/author/register/**"))
-                        .authenticated().anyRequest().authenticated());
+                .authorizeHttpRequests(auth -> auth
+                        // Allow OPTIONS for CORS preflight
+                        .requestMatchers(HttpMethod.OPTIONS, p("/**")).permitAll()
+                        // Public endpoints
+                        .requestMatchers(p("/auth/**"), p("/h2-console/**"), p("/whoami/**")).permitAll()
+                        // Admin endpoints
+                        .requestMatchers(p("/admin/**")).hasRole(Role.ADMIN.name())
+                        // Staff complaint endpoints (staff or admin)
+                        .requestMatchers(p("/staff/**")).hasAnyRole(Role.STAFF.name(), Role.ADMIN.name())
+                        // User and authenticated endpoints
+                        .requestMatchers(p("/complaints/**")).authenticated()
+                        .requestMatchers(p("/books/**")).authenticated()
+                        .requestMatchers(p("/authors/**")).authenticated()
+                        // Legacy endpoints
+                        .requestMatchers(p("/user/search/**"), p("/author/register/**")).authenticated()
+                        // All other requests require authentication
+                        .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -88,8 +88,7 @@
                             "mode": "raw",
                             "raw": "{\n  \"email\": \"testuser@example.com\"\n}"
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
                     "name": "Step 2 - Verify Secret Answer",
@@ -106,8 +105,7 @@
                             "mode": "raw",
                             "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"secretAnswer\": \"fluffy\"\n}"
                         }
-                    },
-                    "response": []
+                    }
                 },
                 {
                     "name": "Step 3 - Reset Password",
@@ -124,8 +122,588 @@
                             "mode": "raw",
                             "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"secretAnswer\": \"fluffy\",\n  \"newPassword\": \"NewPass@123\",\n  \"confirmNewPassword\": \"NewPass@123\"\n}"
                         }
-                    },
-                    "response": []
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Books",
+            "item": [
+                {
+                    "name": "Get All Books (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/books?page=0&size=10&sortBy=bookTitle&direction=asc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "bookTitle"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "asc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Search Books",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/books/search?q=harry&page=0&size=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "books",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "harry"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Search Books by Title",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/books/search/title?title=harry&page=0&size=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "books",
+                                "search",
+                                "title"
+                            ],
+                            "query": [
+                                {
+                                    "key": "title",
+                                    "value": "harry"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Search Books by Author",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/books/search/author?name=rowling&page=0&size=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "books",
+                                "search",
+                                "author"
+                            ],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "rowling"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Book by Public ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/books/BOOK_PUBLIC_ID",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Authors",
+            "item": [
+                {
+                    "name": "Get All Authors (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/authors?page=0&size=10&sortBy=name&direction=asc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "authors"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "name"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "asc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Search Authors by Name",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/authors/search?name=rowling&page=0&size=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "authors",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "rowling"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Author by Email",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/authors/email/author@example.com",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Author by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/authors/1",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Check Author Email Exists",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/authors/check-email?email=author@example.com",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "authors",
+                                "check-email"
+                            ],
+                            "query": [
+                                {
+                                    "key": "email",
+                                    "value": "author@example.com"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Register Author",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/authors/register",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"J.K. Rowling\",\n  \"email\": \"jk.rowling@example.com\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin Dashboard",
+            "item": [
+                {
+                    "name": "Get Full Dashboard Stats",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/admin/dashboard",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Quick Stats",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/admin/dashboard/quick",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User Management (Admin)",
+            "item": [
+                {
+                    "name": "Get All Users (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users?page=0&size=10&sortBy=customerName&direction=asc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "customerName"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "asc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Users by Role",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/role/USER?page=0&size=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "role",
+                                "USER"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Search Users by Name",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/search?name=john&page=0&size=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "john"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get User by Public ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/admin/users/USER_PUBLIC_ID",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Update User Role",
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/USER_PUBLIC_ID/role?role=STAFF",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "USER_PUBLIC_ID",
+                                "role"
+                            ],
+                            "query": [
+                                {
+                                    "key": "role",
+                                    "value": "STAFF"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Toggle Defaulter Status",
+                    "request": {
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/USER_PUBLIC_ID/defaulter?isDefaulter=true",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "USER_PUBLIC_ID",
+                                "defaulter"
+                            ],
+                            "query": [
+                                {
+                                    "key": "isDefaulter",
+                                    "value": "true"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User Profile",
+            "item": [
+                {
+                    "name": "Get My Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/profile",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Update My Profile",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{baseUrl}}/profile",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"customerName\": \"Updated Name\",\n  \"countryCode\": \"+91\",\n  \"mobileNumber\": \"9876543210\",\n  \"address\": \"123 Updated Street, New City\"\n}"
+                        }
+                    }
                 }
             ]
         },
@@ -133,7 +711,7 @@
             "name": "Books (Admin)",
             "item": [
                 {
-                    "name": "Add New Book",
+                    "name": "Add New Book (with Author Emails)",
                     "request": {
                         "method": "POST",
                         "url": "{{baseUrl}}/admin/books",
@@ -149,15 +727,63 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"bookTitle\": \"Harry Potter\",\n  \"category\": \"FICTION\",\n  \"coverUrl\": \"https://example.com/hp.jpg\",\n  \"quantity\": 3\n}"
+                            "raw": "{\n  \"bookTitle\": \"Harry Potter and the Sorcerer's Stone\",\n  \"category\": \"FICTION\",\n  \"coverUrl\": \"https://example.com/hp.jpg\",\n  \"quantity\": 3,\n  \"authors\": [\n    {\n      \"email\": \"jk.rowling@example.com\",\n      \"name\": \"J.K. Rowling\"\n    }\n  ]\n}"
                         }
                     }
                 },
                 {
-                    "name": "Get All Books",
+                    "name": "Add New Book (Legacy - by Author IDs)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/admin/books/by-id",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bookTitle\": \"Harry Potter\",\n  \"category\": \"FICTION\",\n  \"coverUrl\": \"https://example.com/hp.jpg\",\n  \"quantity\": 3,\n  \"authorId\": [1]\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Books (Admin - Paginated)",
                     "request": {
                         "method": "GET",
-                        "url": "{{baseUrl}}/admin/books",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/books?page=0&size=10&sortBy=bookTitle&direction=asc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "bookTitle"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "asc"
+                                }
+                            ]
+                        },
                         "header": [
                             {
                                 "key": "Authorization",
@@ -169,13 +795,359 @@
             ]
         },
         {
+            "name": "Complaints (User)",
+            "item": [
+                {
+                    "name": "Submit Complaint",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/complaints",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"subject\": \"Book damage issue\",\n  \"description\": \"The book I borrowed had pages missing\",\n  \"category\": \"BOOK_DAMAGE\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get My Complaints (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/complaints/my?page=0&size=10&sortBy=createdAt&direction=desc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "complaints",
+                                "my"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "desc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Complaint by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/complaints/CMP-xxxxx",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Track Complaint Status",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/complaints/CMP-xxxxx/track",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Complaints (Staff)",
+            "item": [
+                {
+                    "name": "Get Assigned Complaints (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/staff/complaints?page=0&size=10&sortBy=createdAt&direction=desc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "staff",
+                                "complaints"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "desc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Complaint Details",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/staff/complaints/CMP-xxxxx",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Mark Complaint In Progress",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/staff/complaints/CMP-xxxxx/in-progress",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Resolve Complaint",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/staff/complaints/CMP-xxxxx/resolve",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"response\": \"Issue has been resolved. Replacement book provided.\",\n  \"notes\": \"User was satisfied with the resolution.\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Reject Complaint",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/staff/complaints/CMP-xxxxx/reject",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"response\": \"Cannot process this complaint.\",\n  \"notes\": \"Escalating to another staff member.\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Complaints (Admin)",
+            "item": [
+                {
+                    "name": "Get All Complaints (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/complaints?page=0&size=10&sortBy=createdAt&direction=desc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "complaints"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "desc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Escalated Complaints (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/complaints/escalated?page=0&size=10&sortBy=createdAt&direction=desc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "complaints",
+                                "escalated"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt"
+                                },
+                                {
+                                    "key": "direction",
+                                    "value": "desc"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Complaint Details (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/admin/complaints/CMP-xxxxx",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Admin Resolve Complaint",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/admin/complaints/CMP-xxxxx/resolve",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"response\": \"Admin has resolved the escalated complaint.\",\n  \"notes\": \"Final resolution by admin.\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Admin Reject Complaint (Final)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/admin/complaints/CMP-xxxxx/reject",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"response\": \"Complaint cannot be resolved.\",\n  \"notes\": \"Final rejection by admin.\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
             "name": "Borrow",
             "item": [
                 {
-                    "name": "Issue Book",
+                    "name": "Issue Book (Staff/Admin)",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/borrow/issue",
+                        "url": "{{baseUrl}}/borrow/issue",
                         "header": [
                             {
                                 "key": "Content-Type",
@@ -193,10 +1165,75 @@
                     }
                 },
                 {
-                    "name": "Return Book",
+                    "name": "Return Book by Copy ID (Staff/Admin)",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/borrow/return/1",
+                        "url": "{{baseUrl}}/borrow/return/1",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Return Book by Record ID (Staff/Admin)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/borrow/return/record/1",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Return My Book (User)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/borrow/my/return/BOOK_PUBLIC_ID",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get My Borrowed Books",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/borrow/my",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get My Borrow History",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/borrow/my/history",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get My Overdue Books",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/borrow/my/overdue",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -214,7 +1251,7 @@
                     "name": "Get My Fines",
                     "request": {
                         "method": "GET",
-                        "url": "{{baseUrl}}/api/fines",
+                        "url": "{{baseUrl}}/fines",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -227,7 +1264,7 @@
                     "name": "Pay Fine",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/fines/1/pay",
+                        "url": "{{baseUrl}}/fines/1/pay",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -245,7 +1282,7 @@
                     "name": "Submit Donation",
                     "request": {
                         "method": "POST",
-                        "url": "{{baseUrl}}/api/donations",
+                        "url": "{{baseUrl}}/donations",
                         "header": [
                             {
                                 "key": "Content-Type",
@@ -293,6 +1330,27 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\n  \"quantityApproved\": 5,\n  \"adminNotes\": \"Good condition books accepted\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Reject Donation (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/admin/donations/1/reject",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "\"Books not in good condition\""
                         }
                     }
                 }

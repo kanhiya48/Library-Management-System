@@ -16,4 +16,13 @@ public interface FineRepo extends JpaRepository<Fine, Long> {
 
     @Query("SELECT COALESCE(SUM(f.amount), 0) FROM Fine f WHERE f.user.id = :userId AND f.isPaid = false")
     BigDecimal getTotalUnpaidFineByUser(Long userId);
+
+    // For dashboard stats
+    @Query("SELECT COALESCE(SUM(f.amount), 0) FROM Fine f WHERE f.isPaid = true")
+    BigDecimal getTotalPaidFines();
+
+    @Query("SELECT COALESCE(SUM(f.amount), 0) FROM Fine f WHERE f.isPaid = false")
+    BigDecimal getTotalUnpaidFines();
+
+    long countByIsPaid(boolean isPaid);
 }

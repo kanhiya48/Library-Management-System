@@ -12,4 +12,7 @@ public interface BookDonationRepo extends JpaRepository<BookDonation, Long> {
     List<BookDonation> findByStatus(DonationStatus status);
 
     List<BookDonation> findByUserId(Long userId);
+
+    // For dashboard stats
+    long countByStatus(DonationStatus status);
 }
