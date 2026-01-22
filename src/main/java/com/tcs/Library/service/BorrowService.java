@@ -230,4 +230,61 @@ public class BorrowService {
                     user.getEmail(), overdueBooks.size());
         }
     }
+
+    /**
+     * Get active borrows for a specific book (Admin/Staff only).
+     */
+    public List<IssuedBooks> getActiveBorrowsForBook(Long bookId) {
+        return issuedBooksRepo.findActiveBorrowsByBookId(bookId);
+    }
+
+    /**
+     * Check if a book has any active borrows.
+     */
+    public boolean hasActiveBorrows(Long bookId) {
+        return issuedBooksRepo.existsActiveBorrowsForBook(bookId);
+    }
+
+    public boolean hasActiveBorrowsForUser(Long userId) {
+        return issuedBooksRepo.countByUserIdAndStatus(userId, "BORROWED") > 0;
+    }
+
+    /**
+     * Get all borrowed books (current and historical) with pagination.
+     * Used for Admin Borrowed Books page.
+     */
+    /**
+     * Get all borrowed books (current and historical) with pagination.
+     * Used for Admin Borrowed Books page.
+     */
+    public org.springframework.data.domain.Page<IssuedBooks> getAllBorrowedBooks(
+            org.springframework.data.domain.Pageable pageable) {
+        return issuedBooksRepo.findAll(pageable);
+    }
+
+    /**
+     * Get all borrowed books with filters and pagination.
+     */
+    public org.springframework.data.domain.Page<IssuedBooks> getAllBorrowedBooksWithFilters(
+            String memberName, String category, LocalDate startDate, LocalDate endDate,
+            org.springframework.data.domain.Pageable pageable) {
+
+        com.tcs.Library.enums.BookType bookType = null;
+        if (category != null && !category.trim().isEmpty()) {
+            try {
+                bookType = com.tcs.Library.enums.BookType.valueOf(category.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid category filter: {}", category);
+            }
+        }
+        return issuedBooksRepo.findAllWithFilters(memberName, bookType, startDate, endDate, pageable);
+    }
+
+    /**
+     * Get all currently borrowed books (not returned) with pagination.
+     */
+    public org.springframework.data.domain.Page<IssuedBooks> getAllActiveBorrowedBooks(
+            org.springframework.data.domain.Pageable pageable) {
+        return issuedBooksRepo.findByStatusIn(List.of("BORROWED", "OVERDUE"), pageable);
+    }
 }

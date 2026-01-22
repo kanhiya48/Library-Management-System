@@ -91,4 +91,24 @@ public class AuthorController {
         boolean exists = authorService.emailExists(email);
         return ResponseEntity.ok(ApiResponse.success("Email check result", exists));
     }
+
+    /**
+     * Update an existing author.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Author>> updateAuthor(
+            @PathVariable Long id,
+            @RequestBody AuthorSignUp dto) {
+        Author author = authorService.updateAuthor(id, dto);
+        return ResponseEntity.ok(ApiResponse.success("Author updated successfully", author));
+    }
+
+    /**
+     * Delete an author by ID.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteAuthor(@PathVariable Long id) {
+        authorService.deleteAuthor(id);
+        return ResponseEntity.ok(ApiResponse.success("Author deleted successfully", null));
+    }
 }

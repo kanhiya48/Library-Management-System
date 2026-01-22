@@ -2,14 +2,19 @@ package com.tcs.Library.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tcs.Library.enums.BookStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "book_copy")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class BookCopy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +33,13 @@ public class BookCopy {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
+    @JsonIgnore
     private Book book;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_user_id")
+    @JsonIgnore
     private User currentUser;
 
     @PrePersist
@@ -40,5 +47,11 @@ public class BookCopy {
         if (copyPublicId == null && book != null && book.getPublicId() != null) {
             copyPublicId = book.getPublicId() + "-" + System.currentTimeMillis() % 10000;
         }
+    }
+
+    // Computed property for book title (for frontend display)
+    @JsonProperty("bookTitle")
+    public String getBookTitle() {
+        return book != null ? book.getBookTitle() : null;
     }
 }

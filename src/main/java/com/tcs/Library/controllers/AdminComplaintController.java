@@ -33,8 +33,16 @@ public class AdminComplaintController {
     /**
      * Get all complaints (admin view).
      */
+    /**
+     * Get all complaints (admin view).
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ComplaintResponse>>> getAllComplaints(
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -45,7 +53,8 @@ public class AdminComplaintController {
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<ComplaintResponse> complaints = complaintService.getAllComplaints(pageable);
+        Page<ComplaintResponse> complaints = complaintService.getAllComplaints(searchTerm, category, status, startDate,
+                endDate, pageable);
         return ResponseEntity.ok(ApiResponse.success("All complaints retrieved", PagedResponse.from(complaints)));
     }
 
@@ -54,6 +63,11 @@ public class AdminComplaintController {
      */
     @GetMapping("/escalated")
     public ResponseEntity<ApiResponse<PagedResponse<ComplaintResponse>>> getEscalatedComplaints(
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -64,7 +78,8 @@ public class AdminComplaintController {
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<ComplaintResponse> complaints = complaintService.getAdminComplaints(pageable);
+        Page<ComplaintResponse> complaints = complaintService.getAdminComplaints(searchTerm, category, status,
+                startDate, endDate, pageable);
         return ResponseEntity.ok(ApiResponse.success("Escalated complaints retrieved", PagedResponse.from(complaints)));
     }
 

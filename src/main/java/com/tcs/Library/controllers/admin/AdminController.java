@@ -32,17 +32,22 @@ import com.tcs.Library.service.DonationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.tcs.Library.dto.UserRegRequest;
+import com.tcs.Library.dto.wrapper.UserMapper;
 
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 public class AdminController {
 
     private final DonationService donationService;
     private final BookService bookService;
     private final DashboardService dashboardService;
     private final UserRepo userRepo;
+    private final com.tcs.Library.service.BorrowService borrowService;
+    private final PasswordEncoder passwordEncoder;
 
     // ========== DASHBOARD ==========
 
@@ -128,6 +133,7 @@ public class AdminController {
      * Update user role.
      */
     @PutMapping("/users/{publicId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<User>> updateUserRole(
             @PathVariable String publicId,
             @RequestParam String role) {
@@ -162,12 +168,57 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(message, user));
     }
 
+    /**
+     * Delete user by public ID.
+     */
+    @DeleteMapping("/users/{publicId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable UUID publicId) {
+        User user = userRepo.findByPublicId(publicId)
+                .orElseThrow(() -> new NoUserFoundException("User not found with ID: " + publicId));
+
+        if (borrowService.hasActiveBorrowsForUser(user.getId())) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(
+                    "Cannot delete user with active borrowed books. Please ensure all books are returned first."));
+        }
+
+        userRepo.delete(user);
+        return ResponseEntity.ok(ApiResponse.success("User deleted successfully", null));
+    }
+
+    /**
+     * Add new user/member.
+     */
+    @PostMapping("/users")
+    public ResponseEntity<ApiResponse<User>> addUser(@Valid @RequestBody UserRegRequest request) {
+        if (userRepo.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Email already registered"));
+        }
+
+        User user = UserMapper.toEntity(request);
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        // Admin created users are default USER role
+        user.getRoles().add(Role.USER);
+
+        User savedUser = userRepo.save(user);
+        return ResponseEntity.ok(ApiResponse.success("User created successfully", savedUser));
+    }
+
     // ========== DONATION MANAGEMENT ==========
 
     @GetMapping("/donations")
     public ResponseEntity<ApiResponse<List<DonationResponse>>> getPendingDonations() {
         List<DonationResponse> donations = donationService.getPendingDonations();
         return ResponseEntity.ok(ApiResponse.success("Pending donations retrieved", donations));
+    }
+
+    @GetMapping("/donations/all")
+    public ResponseEntity<ApiResponse<PagedResponse<BookDonation>>> getAllDonations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<BookDonation> donations = donationService.getAllDonations(pageable);
+        return ResponseEntity.ok(ApiResponse.success("Donation history retrieved", PagedResponse.from(donations)));
     }
 
     @PostMapping("/donations/{donationId}/approve")
@@ -228,5 +279,90 @@ public class AdminController {
 
         Page<Book> books = bookService.getAllBooks(pageable);
         return ResponseEntity.ok(ApiResponse.success("Books retrieved", PagedResponse.from(books)));
+    }
+
+    // ========== BOOK EXTENSIONS ==========
+
+    @GetMapping("/books/{bookId}/borrowers")
+    public ResponseEntity<ApiResponse<List<com.tcs.Library.entity.IssuedBooks>>> getBookBorrowers(
+            @PathVariable Long bookId) {
+        List<com.tcs.Library.entity.IssuedBooks> borrowers = borrowService.getActiveBorrowsForBook(bookId);
+        return ResponseEntity.ok(ApiResponse.success("Active borrowers retrieved", borrowers));
+    }
+
+    @GetMapping("/books/{bookId}/can-edit")
+    public ResponseEntity<ApiResponse<Boolean>> canEditBook(@PathVariable Long bookId) {
+        boolean hasActiveBorrows = borrowService.hasActiveBorrows(bookId);
+        return ResponseEntity.ok(ApiResponse.success("Check result", !hasActiveBorrows));
+    }
+
+    @PutMapping("/books/{bookId}")
+    public ResponseEntity<ApiResponse<Book>> updateBook(
+            @PathVariable Long bookId,
+            @Valid @RequestBody com.tcs.Library.dto.BookUpdateRequest request) {
+        Book updatedBook = bookService.updateBook(bookId, request);
+        return ResponseEntity.ok(ApiResponse.success("Book details updated successfully", updatedBook));
+    }
+
+    /**
+     * Delete a book by ID.
+     * Book cannot be deleted if it has active borrows.
+     */
+    @DeleteMapping("/books/{bookId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> deleteBook(@PathVariable Long bookId) {
+        if (borrowService.hasActiveBorrows(bookId)) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(
+                    "Cannot delete book with active borrows. Please ensure all copies are returned first."));
+        }
+        bookService.deleteBook(bookId);
+        return ResponseEntity.ok(ApiResponse.success("Book deleted successfully", null));
+    }
+
+    // ========== BORROWED BOOKS ==========
+
+    /**
+     * Get all borrowed books with pagination.
+     * Returns all borrow records (borrowed, overdue, and returned).
+     */
+    @GetMapping("/borrowed-books")
+    public ResponseEntity<ApiResponse<PagedResponse<com.tcs.Library.entity.IssuedBooks>>> getAllBorrowedBooks(
+            @RequestParam(required = false) String memberName,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) java.time.LocalDate startDate,
+            @RequestParam(required = false) java.time.LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "issueDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<com.tcs.Library.entity.IssuedBooks> borrowedBooks = borrowService.getAllBorrowedBooksWithFilters(
+                memberName, category, startDate, endDate, pageable);
+        return ResponseEntity.ok(ApiResponse.success("Borrowed books retrieved", PagedResponse.from(borrowedBooks)));
+    }
+
+    /**
+     * Get currently active borrowed books (not returned).
+     */
+    @GetMapping("/borrowed-books/active")
+    public ResponseEntity<ApiResponse<PagedResponse<com.tcs.Library.entity.IssuedBooks>>> getActiveBorrowedBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "issueDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<com.tcs.Library.entity.IssuedBooks> borrowedBooks = borrowService.getAllActiveBorrowedBooks(pageable);
+        return ResponseEntity
+                .ok(ApiResponse.success("Active borrowed books retrieved", PagedResponse.from(borrowedBooks)));
     }
 }

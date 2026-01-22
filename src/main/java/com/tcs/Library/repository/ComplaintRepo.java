@@ -13,57 +13,78 @@ import org.springframework.stereotype.Repository;
 import com.tcs.Library.entity.Complaint;
 import com.tcs.Library.entity.User;
 import com.tcs.Library.enums.ComplaintStatus;
+import com.tcs.Library.enums.ComplaintCategory;
+import java.time.LocalDateTime;
 
 @Repository
 public interface ComplaintRepo extends JpaRepository<Complaint, Long> {
 
-    Optional<Complaint> findByComplaintId(String complaintId);
+        @Query("SELECT c FROM Complaint c WHERE " +
+                        "(:searchTerm IS NULL OR LOWER(c.complaintId) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+                        "LOWER(c.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+                        "LOWER(c.complainant.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
+                        "(:category IS NULL OR c.category = :category) AND " +
+                        "(:statuses IS NULL OR c.status IN :statuses) AND " +
+                        "(:startDate IS NULL OR c.createdAt >= :startDate) AND " +
+                        "(:endDate IS NULL OR c.createdAt <= :endDate)")
+        Page<Complaint> findAllWithFilters(
+                        @Param("searchTerm") String searchTerm,
+                        @Param("category") ComplaintCategory category,
+                        @Param("statuses") List<ComplaintStatus> statuses,
+                        @Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate,
+                        Pageable pageable);
 
-    /** Find all complaints by a specific user */
-    List<Complaint> findByComplainant(User user);
+        Optional<Complaint> findByComplaintId(String complaintId);
 
-    Page<Complaint> findByComplainant(User user, Pageable pageable);
+        /** Find all complaints by a specific user */
+        List<Complaint> findByComplainant(User user);
 
-    /** Find complaints by user's public ID */
-    @Query("SELECT c FROM Complaint c WHERE c.complainant.publicId = :publicId")
-    List<Complaint> findByComplainantPublicId(@Param("publicId") java.util.UUID publicId);
+        Page<Complaint> findByComplainant(User user, Pageable pageable);
 
-    @Query("SELECT c FROM Complaint c WHERE c.complainant.publicId = :publicId")
-    Page<Complaint> findByComplainantPublicId(@Param("publicId") java.util.UUID publicId, Pageable pageable);
+        /** Find complaints by user's public ID */
+        @Query("SELECT c FROM Complaint c WHERE c.complainant.publicId = :publicId")
+        List<Complaint> findByComplainantPublicId(@Param("publicId") java.util.UUID publicId);
 
-    /** Find complaints by status */
-    List<Complaint> findByStatus(ComplaintStatus status);
+        @Query("SELECT c FROM Complaint c WHERE c.complainant.publicId = :publicId")
+        Page<Complaint> findByComplainantPublicId(@Param("publicId") java.util.UUID publicId, Pageable pageable);
 
-    Page<Complaint> findByStatus(ComplaintStatus status, Pageable pageable);
+        /** Find complaints by status */
+        List<Complaint> findByStatus(ComplaintStatus status);
 
-    /** Find all pending complaints for auto-assignment */
-    List<Complaint> findByStatusOrderByCreatedAtAsc(ComplaintStatus status);
+        Page<Complaint> findByStatus(ComplaintStatus status, Pageable pageable);
 
-    /** Find complaints assigned to a specific staff member */
-    @Query("SELECT c FROM Complaint c WHERE c.assignedStaff = :staff OR c.secondAssignedStaff = :staff")
-    List<Complaint> findByAssignedStaff(@Param("staff") User staff);
+        /** Find all pending complaints for auto-assignment */
+        List<Complaint> findByStatusOrderByCreatedAtAsc(ComplaintStatus status);
 
-    @Query("SELECT c FROM Complaint c WHERE c.assignedStaff = :staff OR c.secondAssignedStaff = :staff")
-    Page<Complaint> findByAssignedStaff(@Param("staff") User staff, Pageable pageable);
+        /** Find complaints assigned to a specific staff member */
+        @Query("SELECT c FROM Complaint c WHERE c.assignedStaff = :staff OR c.secondAssignedStaff = :staff")
+        List<Complaint> findByAssignedStaff(@Param("staff") User staff);
 
-    /** Find complaints escalated to admin */
-    List<Complaint> findByStatusIn(List<ComplaintStatus> statuses);
+        @Query("SELECT c FROM Complaint c WHERE c.assignedStaff = :staff OR c.secondAssignedStaff = :staff")
+        Page<Complaint> findByAssignedStaff(@Param("staff") User staff, Pageable pageable);
 
-    Page<Complaint> findByStatusIn(List<ComplaintStatus> statuses, Pageable pageable);
+        /** Find complaints escalated to admin */
+        List<Complaint> findByStatusIn(List<ComplaintStatus> statuses);
 
-    /** Find complaints assigned to a specific admin */
-    List<Complaint> findByAssignedAdmin(User admin);
+        Page<Complaint> findByStatusIn(List<ComplaintStatus> statuses, Pageable pageable);
 
-    Page<Complaint> findByAssignedAdmin(User admin, Pageable pageable);
+        /** Find complaints assigned to a specific admin */
+        List<Complaint> findByAssignedAdmin(User admin);
 
-    /** Count pending complaints for dashboard */
-    long countByStatus(ComplaintStatus status);
+        Page<Complaint> findByAssignedAdmin(User admin, Pageable pageable);
 
-    /** Count complaints by staff */
-    @Query("SELECT COUNT(c) FROM Complaint c WHERE (c.assignedStaff = :staff OR c.secondAssignedStaff = :staff) AND c.status IN :statuses")
-    long countActiveComplaintsByStaff(@Param("staff") User staff, @Param("statuses") List<ComplaintStatus> statuses);
+        /** Count pending complaints for dashboard */
+        long countByStatus(ComplaintStatus status);
 
-    /** Count resolved complaints today */
-    @Query("SELECT COUNT(c) FROM Complaint c WHERE c.status = 'RESOLVED' AND c.resolvedAt = :today")
-    long countResolvedToday(@Param("today") java.time.LocalDate today);
+        /** Count complaints by staff */
+        @Query("SELECT COUNT(c) FROM Complaint c WHERE (c.assignedStaff = :staff OR c.secondAssignedStaff = :staff) AND c.status IN :statuses")
+        long countActiveComplaintsByStaff(@Param("staff") User staff,
+                        @Param("statuses") List<ComplaintStatus> statuses);
+
+        /** Count resolved complaints today */
+        /** Count resolved complaints today */
+        @Query("SELECT COUNT(c) FROM Complaint c WHERE c.status = 'RESOLVED' AND c.resolvedAt BETWEEN :startOfDay AND :endOfDay")
+        long countResolvedToday(@Param("startOfDay") java.time.LocalDateTime startOfDay,
+                        @Param("endOfDay") java.time.LocalDateTime endOfDay);
 }

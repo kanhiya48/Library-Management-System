@@ -51,8 +51,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, p("/**")).permitAll()
                         // Public endpoints
                         .requestMatchers(p("/auth/**"), p("/h2-console/**"), p("/whoami/**")).permitAll()
-                        // Admin endpoints
-                        .requestMatchers(p("/admin/**")).hasRole(Role.ADMIN.name())
+                        // Admin endpoints - accessible by ADMIN and STAFF (specific restrictions via
+                        // method security)
+                        .requestMatchers(p("/admin/**")).hasAnyRole(Role.ADMIN.name(), Role.STAFF.name())
                         // Staff complaint endpoints (staff or admin)
                         .requestMatchers(p("/staff/**")).hasAnyRole(Role.STAFF.name(), Role.ADMIN.name())
                         // User and authenticated endpoints

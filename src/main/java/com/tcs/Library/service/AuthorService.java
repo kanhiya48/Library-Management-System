@@ -125,4 +125,43 @@ public class AuthorService {
     public boolean emailExists(String email) {
         return authorRepo.existsByEmail(email);
     }
+
+    /**
+     * Update an existing author.
+     */
+    @Transactional
+    public Author updateAuthor(Long id, AuthorSignUp dto) {
+        Author author = authorRepo.findById(id)
+                .orElseThrow(() -> new NoAuthorFoundException("No Author for ID: " + id));
+
+        // Check if email is being changed to an existing one
+        if (dto.getEmail() != null && !dto.getEmail().equals(author.getEmail())) {
+            if (authorRepo.existsByEmail(dto.getEmail())) {
+                throw new DuplicateAuthorException(dto.getEmail());
+            }
+            author.setEmail(dto.getEmail());
+        }
+
+        if (dto.getName() != null) {
+            author.setName(dto.getName());
+        }
+
+        return authorRepo.save(author);
+    }
+
+    /**
+     * Delete an author by ID.
+     */
+    @Transactional
+    public void deleteAuthor(Long id) {
+        Author author = authorRepo.findById(id)
+                .orElseThrow(() -> new NoAuthorFoundException("No Author for ID: " + id));
+
+        // Check if author has books
+        if (author.getBook() != null && !author.getBook().isEmpty()) {
+            throw new IllegalStateException("Cannot delete author with associated books. Remove the books first.");
+        }
+
+        authorRepo.delete(author);
+    }
 }
