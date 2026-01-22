@@ -6,36 +6,36 @@
 
 -- ========== AUTHORS ==========
 -- Only insert if author with this email doesn't exist
-INSERT INTO author (author_name, email)
-SELECT 'J.K. Rowling', 'jk.rowling@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'J.K. Rowling', 'jk.rowling@authors.com', 'AUTH-JKROWLING'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'jk.rowling@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'George Orwell', 'george.orwell@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'George Orwell', 'george.orwell@authors.com', 'AUTH-GEORGEORWELL'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'george.orwell@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'Isaac Asimov', 'isaac.asimov@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'Isaac Asimov', 'isaac.asimov@authors.com', 'AUTH-ISAACASIMOV'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'isaac.asimov@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'Agatha Christie', 'agatha.christie@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'Agatha Christie', 'agatha.christie@authors.com', 'AUTH-AGATHACHRISTIE'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'agatha.christie@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'Stephen King', 'stephen.king@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'Stephen King', 'stephen.king@authors.com', 'AUTH-STEPHENKING'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'stephen.king@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'Arthur Conan Doyle', 'arthur.doyle@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'Arthur Conan Doyle', 'arthur.doyle@authors.com', 'AUTH-ARTHURDOYLE'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'arthur.doyle@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'Jules Verne', 'jules.verne@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'Jules Verne', 'jules.verne@authors.com', 'AUTH-JULESVERNE'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'jules.verne@authors.com');
 
-INSERT INTO author (author_name, email)
-SELECT 'H.G. Wells', 'hg.wells@authors.com'
+INSERT INTO author (author_name, email, public_id)
+SELECT 'H.G. Wells', 'hg.wells@authors.com', 'AUTH-HGWELLS'
 WHERE NOT EXISTS (SELECT 1 FROM author WHERE email = 'hg.wells@authors.com');
 
 -- ========== USERS (Admin, Staff, Regular Users) ==========

@@ -42,7 +42,7 @@ public class AuthService {
 
         authManager.authenticate(authToken);
 
-        com.tcs.Library.entity.User user = userDS.findByEmail(req.getEmail())
+        com.tcs.Library.entity.User user = userDS.findByEmailIgnoreCase(req.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         String token = authUtils.generateAccessToken(user.getUsername(),

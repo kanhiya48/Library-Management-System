@@ -31,6 +31,7 @@ import com.tcs.Library.service.DashboardService;
 import com.tcs.Library.service.DonationService;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.tcs.Library.dto.UserRegRequest;
@@ -40,6 +41,7 @@ import com.tcs.Library.dto.wrapper.UserMapper;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+//@AllArgsConstructor
 public class AdminController {
 
     private final DonationService donationService;

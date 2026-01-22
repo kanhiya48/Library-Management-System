@@ -138,7 +138,7 @@ public class FirstStartData {
             log.info("Attempting to issue sample book to test user...");
 
             // 1. Find Test User
-            User testUser = userRepo.findByEmail("test@library.com").orElse(null);
+            User testUser = userRepo.findByEmailIgnoreCase("test@library.com").orElse(null);
             if (testUser == null) {
                 log.warn("Test user 'test@library.com' not found. Skipping sample issue.");
                 return;

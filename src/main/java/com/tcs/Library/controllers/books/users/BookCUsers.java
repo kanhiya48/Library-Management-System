@@ -32,7 +32,7 @@ public class BookCUsers {
     public ResponseEntity<ApiResponse<PagedResponse<Book>>> searchBooks(
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "bookTitle") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
 
@@ -58,7 +58,7 @@ public class BookCUsers {
     public ResponseEntity<ApiResponse<PagedResponse<Book>>> searchByTitle(
             @RequestParam String title,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "25") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> results = bookService.searchByTitle(title, pageable);
@@ -73,7 +73,7 @@ public class BookCUsers {
     public ResponseEntity<ApiResponse<PagedResponse<Book>>> searchByAuthor(
             @RequestParam String name,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> results = bookService.searchByAuthor(name, pageable);
@@ -87,7 +87,7 @@ public class BookCUsers {
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<Book>>> getAllBooks(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "bookTitle") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
 
