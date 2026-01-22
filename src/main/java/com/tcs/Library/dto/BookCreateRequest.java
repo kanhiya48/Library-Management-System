@@ -33,6 +33,8 @@ public class BookCreateRequest {
 
     private String coverUrl;
 
+    private String description;
+
     @Positive(message = "Quantity must be positive")
     private int quantity = 1;
 
@@ -50,7 +52,6 @@ public class BookCreateRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AuthorInfo {
-        @NotBlank(message = "Author email is required")
         private String email;
 
         /** Name is optional if author already exists */

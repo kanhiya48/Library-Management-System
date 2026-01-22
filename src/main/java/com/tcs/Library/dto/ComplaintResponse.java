@@ -24,6 +24,7 @@ public class ComplaintResponse {
     private String description;
     private ComplaintCategory category;
     private ComplaintStatus status;
+    private String complainantName;
 
     private String assignedStaffName;
     private String secondStaffName;

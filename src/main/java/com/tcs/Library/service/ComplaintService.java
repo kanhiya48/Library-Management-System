@@ -129,11 +129,53 @@ public class ComplaintService {
     /**
      * Get all pending and escalated complaints for admin.
      */
-    public Page<ComplaintResponse> getAdminComplaints(Pageable pageable) {
-        List<ComplaintStatus> adminStatuses = Arrays.asList(
-                ComplaintStatus.PENDING,
-                ComplaintStatus.ESCALATED_TO_ADMIN);
-        return complaintRepo.findByStatusIn(adminStatuses, pageable)
+    /**
+     * Get all pending and escalated complaints for admin.
+     */
+    public Page<ComplaintResponse> getAdminComplaints(String searchTerm,
+            String categoryStr,
+            String statusStr,
+            String startDateStr,
+            String endDateStr,
+            Pageable pageable) {
+        com.tcs.Library.enums.ComplaintCategory category = null;
+        if (categoryStr != null && !categoryStr.isEmpty()) {
+            try {
+                category = com.tcs.Library.enums.ComplaintCategory.valueOf(categoryStr);
+            } catch (IllegalArgumentException e) {
+                // Ignore
+            }
+        }
+
+        ComplaintStatus status = null;
+        if (statusStr != null && !statusStr.isEmpty()) {
+            try {
+                status = ComplaintStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                // Ignore
+            }
+        }
+
+        LocalDateTime startDate = null;
+        if (startDateStr != null && !startDateStr.isEmpty()) {
+            startDate = java.time.LocalDate.parse(startDateStr).atStartOfDay();
+        }
+
+        LocalDateTime endDate = null;
+        if (endDateStr != null && !endDateStr.isEmpty()) {
+            endDate = java.time.LocalDate.parse(endDateStr).atTime(23, 59, 59);
+        }
+
+        List<ComplaintStatus> statuses;
+        if (status != null) {
+            statuses = Arrays.asList(status);
+        } else {
+            statuses = Arrays.asList(
+                    ComplaintStatus.PENDING,
+                    ComplaintStatus.ESCALATED_TO_ADMIN);
+        }
+
+        return complaintRepo.findAllWithFilters(searchTerm, category, statuses, startDate, endDate, pageable)
                 .map(ComplaintMapper::toResponse);
     }
 
@@ -298,10 +340,47 @@ public class ComplaintService {
     }
 
     /**
-     * Get all complaints (admin only).
+     * Get all complaints (admin only) with optional filters.
      */
-    public Page<ComplaintResponse> getAllComplaints(Pageable pageable) {
-        return complaintRepo.findAll(pageable).map(ComplaintMapper::toResponse);
+    public Page<ComplaintResponse> getAllComplaints(String searchTerm,
+            String categoryStr,
+            String statusStr,
+            String startDateStr,
+            String endDateStr,
+            Pageable pageable) {
+
+        com.tcs.Library.enums.ComplaintCategory category = null;
+        if (categoryStr != null && !categoryStr.isEmpty()) {
+            try {
+                category = com.tcs.Library.enums.ComplaintCategory.valueOf(categoryStr);
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid category
+            }
+        }
+
+        ComplaintStatus status = null;
+        if (statusStr != null && !statusStr.isEmpty()) {
+            try {
+                status = ComplaintStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid status
+            }
+        }
+
+        LocalDateTime startDate = null;
+        if (startDateStr != null && !startDateStr.isEmpty()) {
+            startDate = java.time.LocalDate.parse(startDateStr).atStartOfDay();
+        }
+
+        LocalDateTime endDate = null;
+        if (endDateStr != null && !endDateStr.isEmpty()) {
+            endDate = java.time.LocalDate.parse(endDateStr).atTime(23, 59, 59);
+        }
+
+        List<ComplaintStatus> statuses = (status != null) ? Arrays.asList(status) : null;
+
+        return complaintRepo.findAllWithFilters(searchTerm, category, statuses, startDate, endDate, pageable)
+                .map(ComplaintMapper::toResponse);
     }
 
     /**

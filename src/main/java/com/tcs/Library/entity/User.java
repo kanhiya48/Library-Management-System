@@ -11,11 +11,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.tcs.Library.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class User implements UserDetails {
 
     @Id
@@ -37,8 +41,10 @@ public class User implements UserDetails {
     private String mobileNumber;
     private String address;
     private LocalDate dateOfBirth;
+    @JsonIgnore
     private String passwordHash;
     private String secretQuestion;
+    @JsonIgnore
     private String secretAnswerHash; // Hashed for security
 
     @Column(nullable = false)
@@ -61,11 +67,13 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name())).toList();
     }
 
     @Override
+    @JsonIgnore
     public String getPassword() {
         return this.passwordHash;
     }

@@ -13,6 +13,8 @@ import com.tcs.Library.repository.BookCopyRepo;
 import com.tcs.Library.repository.BookDonationRepo;
 import com.tcs.Library.repository.BookRepo;
 import com.tcs.Library.repository.UserRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,10 @@ public class DonationService {
 
     public List<BookDonation> getUserDonations(Long userId) {
         return donationRepo.findByUserId(userId);
+    }
+
+    public Page<BookDonation> getAllDonations(Pageable pageable) {
+        return donationRepo.findAll(pageable);
     }
 
     @Transactional
