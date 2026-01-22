@@ -5,7 +5,7 @@ This document provides comprehensive API documentation for frontend engineers in
 ## Base URL
 
 ```
-http://localhost:8080
+http://localhost:8080/api/v1
 ```
 
 ---
