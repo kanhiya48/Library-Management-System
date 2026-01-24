@@ -1,14 +1,20 @@
 package com.tcs.Library.utils;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import com.tcs.Library.dto.BookCreateRequest;
 import com.tcs.Library.dto.IssueBookRequest;
 import com.tcs.Library.entity.Book;
+import com.tcs.Library.entity.Fine;
+import com.tcs.Library.entity.IssuedBooks;
 import com.tcs.Library.entity.User;
 import com.tcs.Library.enums.BookType;
 import com.tcs.Library.enums.Role;
 import com.tcs.Library.repository.BookRepo;
+import com.tcs.Library.repository.FineRepo;
+import com.tcs.Library.repository.IssuedBooksRepo;
 import com.tcs.Library.repository.UserRepo;
 import com.tcs.Library.service.BookService;
 import com.tcs.Library.service.BorrowService;
@@ -29,6 +35,8 @@ public class FirstStartData {
     private final BookRepo bookRepo;
     private final BookService bookService;
     private final BorrowService borrowService;
+    private final FineRepo fineRepo;
+    private final IssuedBooksRepo issuedBooksRepo;
 
     @PostConstruct
     public void createSystemUsersOnStart() {
@@ -64,6 +72,7 @@ public class FirstStartData {
 
         createSampleBooks();
         issueSampleBookToTestUser();
+        createSampleFineForTestUser();
     }
 
     private void createUserIfNotExists(String email, String password, String name, Set<Role> roles) {
@@ -167,6 +176,89 @@ public class FirstStartData {
             }
         } catch (Exception e) {
             log.error("Failed to issue sample book to test user", e);
+        }
+    }
+
+    private void createSampleFineForTestUser() {
+        try {
+            log.info("Attempting to create sample fine for test user...");
+
+            // 1. Find Test User
+            User testUser = userRepo.findByEmailIgnoreCase("test@library.com").orElse(null);
+            if (testUser == null) {
+                log.warn("Test user 'test@library.com' not found. Skipping sample fine creation.");
+                return;
+            }
+            log.info("Found Test User: {}", testUser.getEmail());
+
+            // 2. Check if fine already exists
+            if (fineRepo.findByUserId(testUser.getId()).stream()
+                    .anyMatch(f -> f.getAmount().compareTo(new BigDecimal("120")) == 0)) {
+                log.info("Test user already has a fine of 120. Skipping fine creation.");
+                return;
+            }
+
+            // 3. Find an issued book for the fine
+            IssuedBooks issuedBook = issuedBooksRepo.findByUserIdAndStatus(testUser.getId(), "BORROWED")
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            // If no borrowed book, issue one first
+            if (issuedBook == null) {
+                log.info("Test user has no borrowed books. Issuing a book first...");
+
+                Book book = bookRepo.findByBookTitleContainingIgnoreCase("Harry Potter and the Chamber of Secrets")
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+
+                if (book == null) {
+                    log.warn("Could not find a book to issue. Skipping fine creation.");
+                    return;
+                }
+
+                try {
+                    IssueBookRequest request = new IssueBookRequest();
+                    request.setUserPublicId(testUser.getPublicId());
+                    request.setBookPublicId(book.getPublicId());
+
+                    borrowService.issueBook(request);
+                    log.info("Successfully issued '{}' to Test User for fine creation.", book.getBookTitle());
+
+                    // Fetch the newly created issued book
+                    issuedBook = issuedBooksRepo.findByUserIdAndStatus(testUser.getId(), "BORROWED")
+                            .stream()
+                            .findFirst()
+                            .orElse(null);
+
+                    if (issuedBook == null) {
+                        log.error("Failed to retrieve issued book after issuing. Cannot create fine.");
+                        return;
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to issue book for fine creation: {}", e.getMessage());
+                    return;
+                }
+            }
+
+            // 4. Create Fine
+            Fine fine = new Fine();
+            fine.setUser(testUser);
+            fine.setIssuedBook(issuedBook);
+            fine.setAmount(new BigDecimal("120"));
+            fine.setPaid(false);
+            fine.setCreatedAt(LocalDate.now());
+
+            fineRepo.save(fine);
+
+            // Update user's total unpaid fine
+            testUser.setTotalUnpaidFine(testUser.getTotalUnpaidFine().add(new BigDecimal("120")));
+            userRepo.save(testUser);
+
+            log.info("Successfully created fine of 120 for Test User.");
+        } catch (Exception e) {
+            log.error("Failed to create sample fine for test user", e);
         }
     }
 }
