@@ -249,7 +249,7 @@ public class AdminController {
     @PostMapping("/books")
     public ResponseEntity<ApiResponse<Book>> addBookWithAuthors(
             @Valid @RequestBody BookCreateRequest request) {
-        Book savedBook = bookService.createBookWithAuthors(request);
+        Book savedBook = bookService.addBookOrCopies(request);
         return ResponseEntity.ok(ApiResponse.success(
                 "Book added with " + request.getQuantity() + " copies", savedBook));
     }

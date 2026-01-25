@@ -38,9 +38,9 @@ public class BookCreateRequest {
     @Positive(message = "Quantity must be positive")
     private int quantity = 1;
 
-    private String authorName;
+    // private String authorName;
 
-    private String authorEmail;
+    // private String authorEmail;
 
     /**
      * Set of author public IDs. Use this to link existing authors.

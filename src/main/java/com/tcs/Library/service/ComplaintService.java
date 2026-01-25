@@ -405,6 +405,38 @@ public class ComplaintService {
         return ComplaintMapper.toResponse(saved);
     }
 
+    /**
+     * Manually assign a complaint to a specific staff member.
+     */
+    @Transactional
+    public ComplaintResponse assignComplaintToStaff(String complaintId, java.util.UUID staffPublicId) {
+        Complaint complaint = complaintRepo.findByComplaintId(complaintId)
+                .orElseThrow(() -> new ComplaintNotFoundException(complaintId));
+
+        User staff = userRepo.findByPublicId(staffPublicId)
+                .orElseThrow(() -> new com.tcs.Library.error.NoUserFoundException("Staff not found: " + staffPublicId));
+
+        if (!staff.getRoles().contains(Role.STAFF)) {
+            throw new IllegalArgumentException("User is not a staff member");
+        }
+
+        complaint.setAssignedStaff(staff);
+
+        // Reset rejection workflow if applicable
+        complaint.setFirstStaffRejected(false);
+        complaint.setSecondStaffRejected(false);
+        complaint.setSecondAssignedStaff(null);
+        complaint.setAssignedAdmin(null);
+
+        complaint.setStatus(ComplaintStatus.ASSIGNED);
+        complaint.setAssignedAt(LocalDateTime.now());
+
+        Complaint saved = complaintRepo.save(complaint);
+        log.info("Complaint {} manually assigned to staff: {} by admin", complaintId, staff.getEmail());
+
+        return ComplaintMapper.toResponse(saved);
+    }
+
     private String complaintId(Complaint complaint) {
         return complaint.getComplaintId();
     }

@@ -477,7 +477,7 @@ public class FirstStartData1 {
             complaint.setSubject((String) data[0]);
             complaint.setDescription((String) data[1]);
             complaint.setCategory((ComplaintCategory) data[2]);
-            complaint.setStatus((ComplaintStatus) data[3]);
+            complaint.setStatus(ComplaintStatus.ASSIGNED);
             complaint.setFirstStaffRejected(false);
             complaint.setSecondStaffRejected(false);
             complaint.setCreatedAt(LocalDateTime.now().minusDays(20 + i));
