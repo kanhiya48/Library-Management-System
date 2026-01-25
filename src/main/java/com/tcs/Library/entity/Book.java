@@ -20,7 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Getter
 @Setter
 @Entity
-@Table(name = "book")
+@Table(name = "book", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "book_title", "author_name" })
+})
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Book {
     @Id
@@ -35,6 +37,12 @@ public class Book {
 
     @Column(name = "book_title", nullable = false)
     private String bookTitle;
+
+    @Column(name = "author_name", nullable = false)
+    private String authorName;
+
+    @Column(name = "author_email")
+    private String authorEmail;
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)

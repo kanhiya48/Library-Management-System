@@ -111,6 +111,16 @@ public class BookService {
         book.setDescription(request.getDescription());
         book.setAuthors(authors);
 
+        // Set new fields
+        book.setAuthorName(request.getAuthorName());
+        book.setAuthorEmail(request.getAuthorEmail());
+
+        // Fallback for authorName if null
+        if (book.getAuthorName() == null && !authors.isEmpty()) {
+            // Use the first author's name as the primary author name
+            book.setAuthorName(authors.iterator().next().getName());
+        }
+
         // Create book copies
         List<BookCopy> copies = new ArrayList<>();
         for (int i = 0; i < request.getQuantity(); i++) {

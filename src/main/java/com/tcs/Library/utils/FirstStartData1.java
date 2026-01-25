@@ -176,8 +176,13 @@ public class FirstStartData1 {
 
                 // Add author
                 Set<Author> bookAuthors = new HashSet<>();
-                bookAuthors.add(authors.get((Integer) data[3]));
+                Author primaryAuthor = authors.get((Integer) data[3]);
+                bookAuthors.add(primaryAuthor);
                 book.setAuthors(bookAuthors);
+
+                // Set flattened author fields
+                book.setAuthorName(primaryAuthor.getName());
+                book.setAuthorEmail(primaryAuthor.getEmail());
 
                 books.add(bookRepo.save(book));
             }

@@ -32,10 +32,7 @@ public class Author {
 
     @Column(name = "public_id", unique = true, nullable = false, updatable = false)
     private String publicId;
-    
-    @Column(name = "author_name")
-    private String authorName;
-    
+
     @JsonIgnore
     @ManyToMany(mappedBy = "authors")
     private List<Book> book;

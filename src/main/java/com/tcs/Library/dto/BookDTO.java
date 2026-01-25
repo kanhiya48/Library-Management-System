@@ -21,5 +21,6 @@ public class BookDTO {
     private String coverUrl;
     private int quantity;
     private Set<Long> authorId;
+    private String authorName;
+    private String authorEmail;
 }
-
