@@ -6,10 +6,14 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "fine")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Fine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,10 +21,12 @@ public class Fine {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "issued_book_id", nullable = false)
+    @JsonIgnore
     private IssuedBooks issuedBook;
 
     @Column(nullable = false, precision = 10, scale = 2)

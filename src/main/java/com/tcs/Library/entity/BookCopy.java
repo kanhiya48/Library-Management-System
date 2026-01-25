@@ -1,5 +1,7 @@
 package com.tcs.Library.entity;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -41,7 +43,7 @@ public class BookCopy {
     @PrePersist
     public void generateCopyPublicId() {
         if (copyPublicId == null && book != null && book.getPublicId() != null) {
-            copyPublicId = book.getPublicId() + "-" + System.currentTimeMillis() % 10000;
+            copyPublicId = book.getPublicId() + "-" + UUID.randomUUID().toString();
         }
     }
 

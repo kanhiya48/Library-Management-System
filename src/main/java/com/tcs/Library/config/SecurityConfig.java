@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(p("/complaints/**")).authenticated()
                         .requestMatchers(p("/books/**")).authenticated()
                         .requestMatchers(p("/authors/**")).authenticated()
+                        .requestMatchers(p("/fines/**")).authenticated()
                         // Legacy endpoints
                         .requestMatchers(p("/user/search/**"), p("/author/register/**")).authenticated()
                         // All other requests require authentication

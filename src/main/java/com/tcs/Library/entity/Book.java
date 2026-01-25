@@ -79,4 +79,18 @@ public class Book {
                 .filter(name -> name != null && !name.isEmpty())
                 .collect(Collectors.joining(", "));
     }
+
+    /**
+     * Returns the number of available copies that can be borrowed.
+     * This is a computed property for frontend display.
+     */
+    @JsonProperty("totalAvailableCopies")
+    public int getTotalAvailableCopies() {
+        if (copies == null || copies.isEmpty()) {
+            return 0;
+        }
+        return (int) copies.stream()
+                .filter(copy -> copy.getStatus() == com.tcs.Library.enums.BookStatus.AVAILABLE)
+                .count();
+    }
 }

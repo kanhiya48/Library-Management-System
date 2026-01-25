@@ -94,11 +94,14 @@ public class FirstStartData {
         }
 
         // Define Authors
-        BookCreateRequest.AuthorInfo rowling = new BookCreateRequest.AuthorInfo("jk@rowling.com", "J.K. Rowling");
+        BookCreateRequest.AuthorInfo rowling = new BookCreateRequest.AuthorInfo("jk@rowling.com",
+                "J.K. Rowling");
         BookCreateRequest.AuthorInfo martin = new BookCreateRequest.AuthorInfo("grrm@westeros.com",
                 "George R.R. Martin");
-        BookCreateRequest.AuthorInfo tolkien = new BookCreateRequest.AuthorInfo("jrrt@tolkien.com", "J.R.R. Tolkien");
-        BookCreateRequest.AuthorInfo asimov = new BookCreateRequest.AuthorInfo("isaac@asimov.com", "Isaac Asimov");
+        BookCreateRequest.AuthorInfo tolkien = new BookCreateRequest.AuthorInfo("jrrt@tolkien.com",
+                "J.R.R. Tolkien");
+        BookCreateRequest.AuthorInfo asimov = new BookCreateRequest.AuthorInfo("isaac@asimov.com",
+                "Isaac Asimov");
         BookCreateRequest.AuthorInfo christie = new BookCreateRequest.AuthorInfo("agatha@christie.com",
                 "Agatha Christie");
 
@@ -155,7 +158,8 @@ public class FirstStartData {
             log.info("Found Test User: {}", testUser.getEmail());
 
             // 2. Find Book
-            Book book = bookRepo.findByBookTitleContainingIgnoreCase("The Hobbit").stream().findFirst().orElse(null);
+            Book book = bookRepo.findByBookTitleContainingIgnoreCase("The Hobbit").stream().findFirst()
+                    .orElse(null);
             if (book == null) {
                 log.warn("Sample book 'The Hobbit' not found. Skipping sample issue.");
                 return;
