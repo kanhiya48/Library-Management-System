@@ -39,9 +39,48 @@ public class BorrowService {
                 .orElseThrow(() -> new NoUserFoundException("User not found: " + request.getUserPublicId()));
 
         // 2. Check if user is a defaulter
+        // 2. Check and validate if user is a defaulter
         if (user.isDefaulter()) {
-            throw new UserIsDefaulterException(
-                    "User is a defaulter and cannot borrow books. Please pay pending fines.");
+            // Self-healing: Verify if user should actually be a defaulter
+            boolean isStillDefaulter = false;
+            StringBuilder reason = new StringBuilder();
+
+            // Check 1: Excessive Unpaid Fines
+            if (user.getTotalUnpaidFine().compareTo(DEFAULTER_FINE_THRESHOLD) > 0) {
+                isStillDefaulter = true;
+                reason.append("User has high unpaid fines (₹").append(user.getTotalUnpaidFine()).append("). ");
+            }
+
+            // Check 2: Severely Overdue Books
+            if (!isStillDefaulter) {
+                LocalDate cutoffDate = LocalDate.now().minusDays(DEFAULTER_OVERDUE_DAYS);
+                var longOverdueBooks = issuedBooksRepo.findByUserIdAndStatus(user.getId(), "BORROWED")
+                        .stream()
+                        .filter(ib -> ib.getDueDate().isBefore(cutoffDate))
+                        .toList();
+
+                if (!longOverdueBooks.isEmpty()) {
+                    isStillDefaulter = true;
+                    reason.append("User has ").append(longOverdueBooks.size())
+                            .append(" book(s) overdue by more than ").append(DEFAULTER_OVERDUE_DAYS).append(" days: ")
+                            .append(longOverdueBooks.stream()
+                                    .map(ib -> ib.getBookCopy().getBook().getBookTitle())
+                                    .collect(java.util.stream.Collectors.joining(", ")))
+                            .append(". ");
+                }
+            }
+
+            if (isStillDefaulter) {
+                // User is legitimately a defaulter
+                throw new UserIsDefaulterException(
+                        "User is a defaulter: " + reason.toString() + "Please resolve these issues to borrow books.");
+            } else {
+                // False positive - legacy flag found. Auto-correct it.
+                log.info("Auto-correcting stale defaulter status for user {}", user.getEmail());
+                user.setDefaulter(false);
+                userRepo.save(user);
+                // Continue with flow...
+            }
         }
 
         // 3. Check if user has unpaid fines
@@ -210,24 +249,40 @@ public class BorrowService {
     }
 
     public void checkAndUpdateDefaulterStatus(User user) {
+        boolean shouldBeDefaulter = false;
+
         // Mark as defaulter if unpaid fine exceeds threshold
         if (user.getTotalUnpaidFine().compareTo(DEFAULTER_FINE_THRESHOLD) > 0) {
-            user.setDefaulter(true);
-            log.warn("User {} marked as defaulter due to high unpaid fines: ₹{}",
-                    user.getEmail(), user.getTotalUnpaidFine());
+            shouldBeDefaulter = true;
+            if (!user.isDefaulter()) {
+                log.warn("User {} marked as defaulter due to high unpaid fines: ₹{}",
+                        user.getEmail(), user.getTotalUnpaidFine());
+            }
         }
 
         // Also check for severely overdue books
-        LocalDate cutoffDate = LocalDate.now().minusDays(DEFAULTER_OVERDUE_DAYS);
-        var overdueBooks = issuedBooksRepo.findByUserIdAndStatus(user.getId(), "BORROWED")
-                .stream()
-                .filter(ib -> ib.getDueDate().isBefore(cutoffDate))
-                .toList();
+        if (!shouldBeDefaulter) {
+            LocalDate cutoffDate = LocalDate.now().minusDays(DEFAULTER_OVERDUE_DAYS);
+            var overdueBooks = issuedBooksRepo.findByUserIdAndStatus(user.getId(), "BORROWED")
+                    .stream()
+                    .filter(ib -> ib.getDueDate().isBefore(cutoffDate))
+                    .toList();
 
-        if (!overdueBooks.isEmpty()) {
-            user.setDefaulter(true);
-            log.warn("User {} marked as defaulter due to {} books overdue by 30+ days",
-                    user.getEmail(), overdueBooks.size());
+            if (!overdueBooks.isEmpty()) {
+                shouldBeDefaulter = true;
+                if (!user.isDefaulter()) {
+                    log.warn("User {} marked as defaulter due to {} books overdue by 30+ days",
+                            user.getEmail(), overdueBooks.size());
+                }
+            }
+        }
+
+        // Update status if changed
+        if (user.isDefaulter() != shouldBeDefaulter) {
+            user.setDefaulter(shouldBeDefaulter);
+            if (!shouldBeDefaulter) {
+                log.info("User {} no longer meets defaulter criteria.", user.getEmail());
+            }
         }
     }
 
