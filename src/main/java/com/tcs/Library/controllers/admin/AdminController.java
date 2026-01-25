@@ -41,7 +41,7 @@ import com.tcs.Library.dto.wrapper.UserMapper;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-//@AllArgsConstructor
+// @AllArgsConstructor
 public class AdminController {
 
     private final DonationService donationService;
@@ -331,6 +331,7 @@ public class AdminController {
     public ResponseEntity<ApiResponse<PagedResponse<com.tcs.Library.entity.IssuedBooks>>> getAllBorrowedBooks(
             @RequestParam(required = false) String memberName,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
             @RequestParam(required = false) java.time.LocalDate startDate,
             @RequestParam(required = false) java.time.LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
@@ -344,7 +345,7 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<com.tcs.Library.entity.IssuedBooks> borrowedBooks = borrowService.getAllBorrowedBooksWithFilters(
-                memberName, category, startDate, endDate, pageable);
+                memberName, category, status, startDate, endDate, pageable);
         return ResponseEntity.ok(ApiResponse.success("Borrowed books retrieved", PagedResponse.from(borrowedBooks)));
     }
 

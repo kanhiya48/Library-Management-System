@@ -30,6 +30,9 @@ public interface IssuedBooksRepo extends JpaRepository<IssuedBooks, Long> {
         // Find all active borrows for a user
         List<IssuedBooks> findByUserIdAndStatus(Long userId, String status);
 
+        // Find all borrows for a user with multiple statuses
+        List<IssuedBooks> findByUserIdAndStatusIn(Long userId, List<String> statuses);
+
         // Find all borrows for a user (history)
         List<IssuedBooks> findByUserId(Long userId);
 
@@ -74,11 +77,13 @@ public interface IssuedBooksRepo extends JpaRepository<IssuedBooks, Long> {
                         "(:memberName IS NULL OR LOWER(ib.user.customerName) LIKE LOWER(CONCAT('%', :memberName, '%'))) AND "
                         +
                         "(:category IS NULL OR ib.bookCopy.book.category = :category) AND " +
+                        "(:status IS NULL OR ib.status = :status) AND " +
                         "(:startDate IS NULL OR ib.issueDate >= :startDate) AND " +
                         "(:endDate IS NULL OR ib.issueDate <= :endDate)")
         org.springframework.data.domain.Page<IssuedBooks> findAllWithFilters(
                         @Param("memberName") String memberName,
                         @Param("category") BookType category,
+                        @Param("status") String status,
                         @Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate,
                         org.springframework.data.domain.Pageable pageable);

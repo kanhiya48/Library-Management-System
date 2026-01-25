@@ -33,7 +33,7 @@ public class IssuedBooks {
     private LocalDate returnDate;
 
     @Column(nullable = false)
-    private String status; // BORROWED, RETURNED, OVERDUE
+    private String status; // BORROWED, RETURNED, OVERDUE, RETURN_INITIATED
 
     @Column(precision = 10, scale = 2)
     private BigDecimal fineAmount = BigDecimal.ZERO;
