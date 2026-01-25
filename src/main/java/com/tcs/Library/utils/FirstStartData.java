@@ -129,21 +129,21 @@ public class FirstStartData {
                 log.info("15 Sample books initialized.");
         }
 
-        private void createBook(String title, BookType type, int quantity, BookCreateRequest.AuthorInfo author) {
-                BookCreateRequest request = new BookCreateRequest();
-                request.setBookTitle(title);
-                request.setCategory(type);
-                request.setQuantity(quantity);
-                request.setAuthors(Set.of(author));
-                // Placeholder image or empty
-                request.setCoverUrl("https://placehold.co/400x600?text=" + title.replace(" ", "+"));
+    private void createBook(String title, BookType type, int quantity, BookCreateRequest.AuthorInfo author) {
+        BookCreateRequest request = new BookCreateRequest();
+        request.setBookTitle(title);
+        request.setCategory(type);
+        request.setQuantity(quantity);
+        request.setAuthors(Set.of(author));
+        // Placeholder image or empty
+        request.setCoverUrl("https://placehold.co/400x600?text=" + title.replace(" ", "+"));
 
-                try {
-                        bookService.createBookWithAuthors(request);
-                } catch (Exception e) {
-                        log.error("Failed to create sample book: {}", title, e);
-                }
+        try {
+            bookService.createBookWithAuthors(request);
+        } catch (Exception e) {
+            log.error("Failed to create sample book: {}", title, e);
         }
+    }
 
         private void issueSampleBookToTestUser() {
                 try {

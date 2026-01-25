@@ -3,6 +3,7 @@ package com.tcs.Library.service;
 import com.tcs.Library.dto.DonationApprovalRequest;
 import com.tcs.Library.dto.DonationRequest;
 import com.tcs.Library.dto.DonationResponse;
+import com.tcs.Library.entity.Author;
 import com.tcs.Library.entity.Book;
 import com.tcs.Library.entity.BookCopy;
 import com.tcs.Library.entity.BookDonation;
@@ -10,6 +11,7 @@ import com.tcs.Library.entity.User;
 import com.tcs.Library.enums.BookStatus;
 import com.tcs.Library.enums.DonationStatus;
 import com.tcs.Library.error.NoUserFoundException;
+import com.tcs.Library.repository.AuthorRepo;
 import com.tcs.Library.repository.BookCopyRepo;
 import com.tcs.Library.repository.BookDonationRepo;
 import com.tcs.Library.repository.BookRepo;
@@ -35,6 +37,7 @@ public class DonationService {
     private final BookRepo bookRepo;
     private final BookCopyRepo bookCopyRepo;
     private final UserRepo userRepo;
+    private final AuthorRepo authorRepo;
 
     @Transactional
     public BookDonation submitDonation(UUID userPublicId, DonationRequest request) {
@@ -65,8 +68,7 @@ public class DonationService {
                         d.getStatus(),
                         d.getAdminNotes(),
                         d.getCreatedAt(),
-                        d.getProcessedAt()
-                ))
+                        d.getProcessedAt()))
                 .toList();
     }
 
@@ -84,8 +86,7 @@ public class DonationService {
                         d.getStatus(),
                         d.getAdminNotes(),
                         d.getCreatedAt(),
-                        d.getProcessedAt()
-                ))
+                        d.getProcessedAt()))
                 .toList();
     }
 
@@ -121,6 +122,23 @@ public class DonationService {
                         newBook.setTotalCopies(0);
                         return bookRepo.save(newBook);
                     });
+
+            // Handle Author mapping
+            if (donation.getAuthor() != null && !donation.getAuthor().trim().isEmpty()) {
+                String authorName = donation.getAuthor().trim();
+                Author author = authorRepo.findByNameIgnoreCase(authorName)
+                        .orElseGet(() -> {
+                            Author newAuthor = new Author();
+                            newAuthor.setName(authorName);
+                            return authorRepo.save(newAuthor);
+                        });
+
+                if (book.getAuthors() == null) {
+                    book.setAuthors(new java.util.HashSet<>());
+                }
+                book.getAuthors().add(author);
+                bookRepo.save(book);
+            }
 
             // Add copies
             for (int i = 0; i < request.getQuantityApproved(); i++) {

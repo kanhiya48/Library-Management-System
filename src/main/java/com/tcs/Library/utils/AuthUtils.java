@@ -55,7 +55,7 @@ public class AuthUtils {
         Instant now = Instant.now();
         return Jwts.builder().subject(username).header().empty().add("type", "JWT").and()
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plus(24, ChronoUnit.HOURS))).claims(claims)
+                .expiration(Date.from(now.plus(10, ChronoUnit.MINUTES))).claims(claims)
                 .signWith(getSigningKey()).compact();
     }
 

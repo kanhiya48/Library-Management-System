@@ -35,6 +35,9 @@ public interface AuthorRepo extends JpaRepository<Author, Long> {
     Page<Author> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String name, String email,
             Pageable pageable);
 
+    /** Find author by name (exact match, case insensitive) */
+    Optional<Author> findByNameIgnoreCase(String name);
+
     /** Find all authors with pagination */
     Page<Author> findAll(Pageable pageable);
 }
