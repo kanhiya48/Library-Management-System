@@ -176,8 +176,13 @@ public class FirstStartData1 {
 
                 // Add author
                 Set<Author> bookAuthors = new HashSet<>();
-                bookAuthors.add(authors.get((Integer) data[3]));
+                Author primaryAuthor = authors.get((Integer) data[3]);
+                bookAuthors.add(primaryAuthor);
                 book.setAuthors(bookAuthors);
+
+                // Set flattened author fields
+                book.setAuthorName(primaryAuthor.getName());
+                book.setAuthorEmail(primaryAuthor.getEmail());
 
                 books.add(bookRepo.save(book));
             }
@@ -472,10 +477,15 @@ public class FirstStartData1 {
             complaint.setSubject((String) data[0]);
             complaint.setDescription((String) data[1]);
             complaint.setCategory((ComplaintCategory) data[2]);
-            complaint.setStatus((ComplaintStatus) data[3]);
+            complaint.setStatus(ComplaintStatus.ASSIGNED);
             complaint.setFirstStaffRejected(false);
             complaint.setSecondStaffRejected(false);
             complaint.setCreatedAt(LocalDateTime.now().minusDays(20 + i));
+            if (i % 2 == 0) {
+                complaint.setAssignedStaff(userRepo.findById(3L).get());
+            } else {
+                complaint.setAssignedStaff(userRepo.findById(2L).get());
+            }
 
             complaintRepo.save(complaint);
         }

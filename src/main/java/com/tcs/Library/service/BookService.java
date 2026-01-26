@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tcs.Library.dto.BookCreateRequest;
+
 import com.tcs.Library.dto.BookDTO;
 import com.tcs.Library.dto.wrapper.BookMapper;
 import com.tcs.Library.entity.Author;
@@ -111,6 +112,13 @@ public class BookService {
         book.setDescription(request.getDescription());
         book.setAuthors(authors);
 
+        // Set new fields
+        if (!authors.isEmpty()) {
+            Author primaryAuthor = authors.iterator().next();
+            book.setAuthorName(primaryAuthor.getName());
+            book.setAuthorEmail(primaryAuthor.getEmail());
+        }
+
         // Create book copies
         List<BookCopy> copies = new ArrayList<>();
         for (int i = 0; i < request.getQuantity(); i++) {
@@ -122,6 +130,73 @@ public class BookService {
         book.setCopies(copies);
 
         return bookRepo.save(book);
+    }
+
+    /**
+     * Add a new book or add copies to an existing book if it matches (smart
+     * creation).
+     */
+    @Transactional
+    public Book addBookOrCopies(BookCreateRequest request) {
+        if (request.getAuthors() == null || request.getAuthors().isEmpty()) {
+            throw new IllegalArgumentException("At least one author is required");
+        }
+        BookCreateRequest.AuthorInfo firstAuthor = request.getAuthors().iterator().next();
+        String authorName = firstAuthor.getName();
+        String authorEmail = firstAuthor.getEmail();
+
+        if (authorName == null || authorName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Author name is required");
+        }
+
+        // 1. Check if book exists
+        java.util.Optional<Book> existingBookOpt = bookRepo.findByBookTitleIgnoreCaseAndAuthorNameIgnoreCase(request.getBookTitle(),
+                authorName);
+
+        if (existingBookOpt.isPresent()) {
+            Book existingBook = existingBookOpt.get();
+
+            // 2. Add new copies to existing book
+            List<BookCopy> existingCopies = existingBook.getCopies();
+            if (existingCopies == null) {
+                existingCopies = new ArrayList<>();
+                existingBook.setCopies(existingCopies);
+            }
+
+            for (int i = 0; i < request.getQuantity(); i++) {
+                BookCopy copy = new BookCopy();
+                copy.setBook(existingBook);
+                copy.setStatus(BookStatus.AVAILABLE);
+                existingCopies.add(copy); // Add to existing list
+            }
+
+            // Update total copies count
+            existingBook.setTotalCopies(existingBook.getTotalCopies() + request.getQuantity());
+
+            return bookRepo.save(existingBook);
+        } else {
+            // 3. Create new book
+            Book newBook = new Book();
+            newBook.setBookTitle(request.getBookTitle());
+            newBook.setAuthorName(authorName);
+            newBook.setAuthorEmail(authorEmail);
+            newBook.setCategory(request.getCategory());
+            newBook.setCoverUrl(request.getCoverUrl());
+            newBook.setDescription(request.getDescription());
+            newBook.setTotalCopies(request.getQuantity());
+
+            // Create new copies list
+            List<BookCopy> copies = new ArrayList<>();
+            for (int i = 0; i < request.getQuantity(); i++) {
+                BookCopy copy = new BookCopy();
+                copy.setBook(newBook);
+                copy.setStatus(BookStatus.AVAILABLE);
+                copies.add(copy);
+            }
+            newBook.setCopies(copies);
+
+            return bookRepo.save(newBook);
+        }
     }
 
     /**

@@ -19,6 +19,17 @@ public class BookMapper {
         book.setCoverUrl(dto.getCoverUrl());
         book.setTotalCopies(dto.getQuantity());
         book.setAuthors(authors == null ? new HashSet<>() : authors);
+
+        // Map new fields
+        book.setAuthorName(dto.getAuthorName());
+        book.setAuthorEmail(dto.getAuthorEmail());
+
+        // Fallback for authorName if null (since it's mandatory)
+        if (book.getAuthorName() == null && authors != null && !authors.isEmpty()) {
+            book.setAuthorName(authors.iterator().next().getName());
+        }
+        // If still null, it might fail validation, but we leave it to database or
+        // caller checking.
         return book;
     }
 }
